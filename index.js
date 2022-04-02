@@ -7,7 +7,7 @@ const fs = require("fs");
 const jpeg = require("jpeg-js");
 const tf = require("@tensorflow/tfjs");
 const cors = require("cors")({ origin: true });
-const tfnode = require("@tensorflow/tfjs-node")
+const tfnode = require("@tensorflow/tfjs-node");
 
 const runtimeOpts = {
   timeoutSeconds: 180,
@@ -45,8 +45,66 @@ exports.hello = functions.https.onRequest(async (req, res) => {
           to: `${data.userId}`,
           messages: [
             {
-              type: "text",
-              text: `${data.text}`,
+              type: "flex",
+              altText: "ตอบกลับปัญหาผู้ใช้",
+              contents: {
+                type: "bubble",
+                header: {
+                  type: "box",
+                  layout: "vertical",
+                  contents: [
+                    {
+                      type: "text",
+                      text: "ปัญหาผู้ใช้งาน",
+                    },
+                    {
+                      type: "text",
+                      text: `${req.body.date}`,
+                      size: "xs",
+                    },
+                  ],
+                },
+                body: {
+                  type: "box",
+                  layout: "vertical",
+                  contents: [
+                    {
+                      type: "text",
+                      text: "ปัญหาที่แจ้ง",
+                      contents: [],
+                      color: "#FF0000",
+                      weight: "bold",
+                    },
+                    {
+                      type: "separator",
+                    },
+                    {
+                      type: "text",
+                      text: `${req.body.detail}`,
+                      size: "sm",
+                      wrap: true,
+                      margin: "lg",
+                    },
+                    {
+                      type: "text",
+                      text: "ตอบกลับ",
+                      margin: "lg",
+                      color: "#00CC00",
+                      weight: "bold",
+                    },
+                    {
+                      type: "separator",
+                    },
+                    {
+                      type: "text",
+                      text: `${req.body.text}`,
+                      wrap: true,
+                      margin: "md",
+                      size: "sm",
+                    },
+                  ],
+                },
+              },
             },
           ],
         }),
@@ -82,10 +140,10 @@ exports.LineBot = functions
         let classname2 = pred[1].className;
         let classname3 = pred[2].className;
         let classname4 = pred[3].className;
-        let displayClassname1 = '';
-        let displayClassname2 = '';
-        let displayClassname3 = '';
-        let displayClassname4 = '';
+        let displayClassname1 = "";
+        let displayClassname2 = "";
+        let displayClassname3 = "";
+        let displayClassname4 = "";
         let probability1 = pred[0].probability;
         let probability2 = pred[1].probability;
         let probability3 = pred[2].probability;
@@ -98,55 +156,71 @@ exports.LineBot = functions
         probability3 = probability3.toFixed(2);
         probability4 = probability4 * 100;
         probability4 = probability4.toFixed(2);
-        let urlD = "";
-        if (classname1 === "blight") {
-          displayClassname1 = 'โรคใบไหม้แผลใหญ่'
-          urlD =
-            "https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B9%83%E0%B8%9A%E0%B9%84%E0%B8%AB%E0%B8%A1%E0%B9%89%E0%B9%81%E0%B8%9C%E0%B8%A5%E0%B9%83%E0%B8%AB%E0%B8%8D%E0%B9%88";
-        } else if (classname1 === "graySpot") {
-          displayClassname1 = 'โรคใบจุดสีเทา'
-          urlD =
-            "https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B9%83%E0%B8%9A%E0%B8%88%E0%B8%B8%E0%B8%94%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%97%E0%B8%B2";
-        } else if (classname1 === "cornRust") {
-          displayClassname1 = 'โรคราสนิม'
-          urlD = 
-            "https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%A1";
-        } else {
-          displayClassname1 = 'ปกติ'
-          urlD =
-            "https://line-bot-bd566.web.app/diseases/?index=%E0%B8%AA%E0%B8%B8%E0%B8%82%E0%B8%A0%E0%B8%B2%E0%B8%9E%E0%B8%94%E0%B8%B5";
-        }
-        
-        if (classname2 === "blight"){
-          displayClassname2 = 'โรคใบไหม้แผลใหญ่';
-        }else if (classname2 === 'graySpot'){
-          displayClassname2 = 'โรคใบจุดสีเทา'
-        }else if (classname2 === 'cornRust'){
-          displayClassname2 = 'โรคราสนิม'
-        }else {
-          displayClassname2 = 'ปกติ'
-        }
-        
-        if (classname3 === "blight"){
-          displayClassname3 = 'โรคใบไหม้แผลใหญ่';
-        }else if (classname3 === 'graySpot'){
-          displayClassname3 = 'โรคใบจุดสีเทา'
-        }else if (classname3 === 'cornRust'){
-          displayClassname3 = 'โรคราสนิม'
-        }else {
-          displayClassname3 = 'ปกติ'
+        let urlD = "https://line-bot-bd566.web.app/diseases";
+
+        switch (classname1) {
+          case "blight":
+            displayClassname1 = "โรคใบไหม้แผลใหญ่";
+            urlD =
+              "https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B9%83%E0%B8%9A%E0%B9%84%E0%B8%AB%E0%B8%A1%E0%B9%89%E0%B9%81%E0%B8%9C%E0%B8%A5%E0%B9%83%E0%B8%AB%E0%B8%8D%E0%B9%88";
+            break;
+          case "graySpot":
+            displayClassname1 = "โรคใบจุดสีเทา";
+            urlD =
+              "https://line-bot-bd566.web.app/diseases/?index=https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B9%83%E0%B8%9A%E0%B8%88%E0%B8%B8%E0%B8%94%E0%B8%AA%E0%B8%B5%E0%B9%80%E0%B8%97%E0%B8%B2";
+            break;
+          case "cornRust":
+            displayClassname1 = "โรคราสนิม";
+            urlD = "https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%A1";
+            break;
+          default:
+            displayClassname1 = "ปกติ";
+            urlD = "https://line-bot-bd566.web.app/diseases?index"
         }
 
-        if (classname4 === "blight"){
-          displayClassname4 = 'โรคใบไหม้แผลใหญ่';
-        }else if (classname4 === 'graySpot'){
-          displayClassname4 = 'โรคใบจุดสีเทา'
-        }else if (classname4 === 'cornRust'){
-          displayClassname4 = 'โรคราสนิม'
-        }else {
-          displayClassname4 = 'ปกติ'
+        switch (classname2) {
+          case "blight":
+            displayClassname2 = "โรคใบไหม้แผลใหญ่";
+            break;
+          case "graySpot":
+            displayClassname2 = "โรคใบจุดสีเทา";
+            break;
+          case "cornRust":
+            displayClassname2 = "โรคราสนิม";
+            break;
+          default:
+            displayClassname2 = "ปกติ";
         }
 
+        switch (classname3) {
+          case "blight":
+            displayClassname3 = "โรคใบไหม้แผลใหญ่";
+            break;
+          case "graySpot":
+            displayClassname3 = "โรคใบจุดสีเทา";
+            break;
+          case "cornRust":
+            displayClassname3 = "โรคราสนิม";
+            break;
+          default:
+            displayClassname3 = "ปกติ";
+        }
+
+        switch (classname4) {
+          case "blight":
+            displayClassname4 = "โรคใบไหม้แผลใหญ่";
+            break;
+          case "graySpot":
+            displayClassname4 = "โรคใบจุดสีเทา";
+            break;
+          case "cornRust":
+            displayClassname4 = "โรคราสนิม";
+            break;
+          default:
+            displayClassname4 = "ปกติ";
+        }
+
+        console.log(urlD)
         await reply(replyToken, {
           type: "flex",
           altText: "ผลการวินิจฉัย",
@@ -241,6 +315,7 @@ exports.LineBot = functions
             },
           },
         });
+
         admin.initializeApp();
         const db = admin.database();
         await db.ref("prediction/stat/predict").transaction((current_value) => {
@@ -264,10 +339,10 @@ exports.LineBot = functions
         await fs.unlinkSync(tempLocalFile);
       } else {
         console.log("notLeaf");
-        
+
         await reply(replyToken, {
           type: "text",
-          text: "ไม่สามารถวินิจฉัยโรคได้เนื่องจากไม่ใช่รูปใบข้าวโพด หรือรูปภาพไม่ชัดเจน",    //ตอบกลับ
+          text: "ไม่สามารถวินิจฉัยโรคได้เนื่องจากไม่ใช่รูปใบข้าวโพด หรือรูปภาพไม่ชัดเจน", //ตอบกลับ
         });
         admin.initializeApp();
         const db = admin.database();
@@ -279,10 +354,10 @@ exports.LineBot = functions
           .transaction((current_value) => {
             return (current_value || 0) + 1;
           });
-        let prob = predLeaf[0].probability
-        prob = predLeaf[0].probability * 100
+        let prob = predLeaf[0].probability;
+        prob = predLeaf[0].probability * 100;
         prob = prob.toFixed(2);
-        console.log( 'Not leaf  = '+prob)
+        console.log("Not leaf  = " + prob);
         await db.ref("prediction/log").push({
           img: filename,
           predict: "notCornLeaf",
@@ -297,12 +372,10 @@ exports.LineBot = functions
     }
   });
 
-
-
-  /// Model setting
+/// Model setting
 async function predict(jpg) {
   var label = ["blight", "graySpot", "healty", "cornRust"];
-  let handler = tfnode.io.fileSystem('./model/layer2/model.json')
+  let handler = tfnode.io.fileSystem("./model/layer2/model.json");
   //https://raw.githubusercontent.com/stang464/lineBotCorn/main/model91021/model.json
   let model = await tf.loadGraphModel(handler);
   // model.summary();
@@ -336,7 +409,7 @@ async function predict(jpg) {
 
 async function predictLeaf(jpg) {
   var label = ["CornLeaf", "notCornLeaf"];
-  let handler = tfnode.io.fileSystem('./model/layer1/model.json')
+  let handler = tfnode.io.fileSystem("./model/layer1/model.json");
   let model = await tf.loadGraphModel(handler);
   // model.summary();
   await console.log("model is loaded.!!!!");
