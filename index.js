@@ -62,6 +62,11 @@ exports.hello = functions.https.onRequest(async (req, res) => {
                       text: `${req.body.date}`,
                       size: "xs",
                     },
+                    {
+                      type: "text",
+                      text: `ประเภท ${req.body.genre}`,
+                      size: "xs",
+                    },
                   ],
                 },
                 body: {
@@ -101,6 +106,74 @@ exports.hello = functions.https.onRequest(async (req, res) => {
                       wrap: true,
                       margin: "md",
                       size: "sm",
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        }),
+      });
+    } else if (data.event === "sendbackFormReport") {
+      request.post({
+        uri: url,
+        headers: LINE_HEADER,
+        body: JSON.stringify({
+          to: `${data.userId}`,
+          messages: [
+            {
+              type: "flex",
+              altText: "ตอบกลับปัญหาผู้ใช้",
+              contents: {
+                type: "bubble",
+                header: {
+                  type: "box",
+                  layout: "vertical",
+                  contents: [
+                    {
+                      type: "text",
+                      text: "ปัญหาผู้ใช้งาน",
+                    },
+                    {
+                      type: "text",
+                      text: `${req.body.date}`,
+                      size: "xs",
+                    },
+                    {
+                      type: "text",
+                      text: `ประเภท ${req.body.genre}`,
+                      size: "xs",
+                    },
+                  ],
+                },
+                body: {
+                  type: "box",
+                  layout: "vertical",
+                  contents: [
+                    {
+                      type: "text",
+                      text: "ปัญหาที่แจ้ง",
+                      contents: [],
+                      color: "#FF0000",
+                      weight: "bold",
+                    },
+                    {
+                      type: "separator",
+                    },
+                    {
+                      type: "text",
+                      text: `${req.body.detail}`,
+                      size: "sm",
+                      wrap: true,
+                      margin: "lg",
+                    },
+                    {
+                      type: "text",
+                      text: "กำลังดำเนินการ แอดมินจะตอบกลับเร็วๆนี้",
+                      margin: "lg",
+                      color: "#1974D2",
+                      wrap: true,
+                      weight: "bold",
                     },
                   ],
                 },
@@ -171,11 +244,12 @@ exports.LineBot = functions
             break;
           case "cornRust":
             displayClassname1 = "โรคราสนิม";
-            urlD = "https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%A1";
+            urlD =
+              "https://line-bot-bd566.web.app/diseases/?index=%E0%B9%82%E0%B8%A3%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%AA%E0%B8%99%E0%B8%B4%E0%B8%A1";
             break;
           default:
             displayClassname1 = "ปกติ";
-            urlD = "https://line-bot-bd566.web.app/diseases?index"
+            urlD = "https://line-bot-bd566.web.app/diseases?index";
         }
 
         switch (classname2) {
@@ -220,101 +294,184 @@ exports.LineBot = functions
             displayClassname4 = "ปกติ";
         }
 
-        console.log(urlD)
-        await reply(replyToken, {
-          type: "flex",
-          altText: "ผลการวินิจฉัย",
-          contents: {
-            type: "bubble",
-            direction: "ltr",
-            header: {
-              type: "box",
-              layout: "vertical",
-              contents: [
-                {
-                  type: "text",
-                  text: "ผลการวินิจฉัย",
-                  weight: "bold",
-                  contents: [],
-                },
-              ],
-            },
-            body: {
-              type: "box",
-              layout: "vertical",
-              contents: [
-                {
-                  type: "text",
-                  align: "start",
-                  contents: [
-                    {
-                      type: "span",
-                      text: `${displayClassname1} `,
-                      weight: "regular",
-                    },
-                    {
-                      type: "span",
-                      text: `:  ${probability1}%`,
-                    },
-                  ],
-                },
-                {
-                  type: "text",
-                  contents: [
-                    {
-                      type: "span",
-                      text: `${displayClassname2} `,
-                    },
-                    {
-                      type: "span",
-                      text: `:  ${probability2}%`,
-                    },
-                  ],
-                },
-                {
-                  type: "text",
-                  contents: [
-                    {
-                      type: "span",
-                      text: `${displayClassname3} `,
-                    },
-                    {
-                      type: "span",
-                      text: `:  ${probability3}%`,
-                    },
-                  ],
-                },
-                {
-                  type: "text",
-                  contents: [
-                    {
-                      type: "span",
-                      text: `${displayClassname4} `,
-                    },
-                    {
-                      type: "span",
-                      text: `:  ${probability4}%`,
-                    },
-                  ],
-                },
-              ],
-            },
-            footer: {
-              type: "box",
-              layout: "horizontal",
-              contents: [
-                {
-                  type: "button",
-                  action: {
-                    type: "uri",
-                    label: "รับคำแนะนำโรค",
-                    uri: `${urlD}`,
+        console.log(urlD);
+        if (displayClassname1 === "ปกติ") {
+          await reply(replyToken, {
+            type: "flex",
+            altText: "ผลการวินิจฉัย",
+            contents: {
+              type: "bubble",
+              direction: "ltr",
+              header: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    text: "ผลการวินิจฉัย",
+                    weight: "bold",
+                    contents: [],
                   },
-                },
-              ],
+                ],
+              },
+              body: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    align: "start",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname1} `,
+                        weight: "regular",
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability1}%`,
+                      },
+                    ],
+                  },
+                  {
+                    type: "text",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname2} `,
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability2}%`,
+                      },
+                    ],
+                  },
+                  {
+                    type: "text",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname3} `,
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability3}%`,
+                      },
+                    ],
+                  },
+                  {
+                    type: "text",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname4} `,
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability4}%`,
+                      },
+                    ],
+                  },
+                ],
+              },
             },
-          },
-        });
+          });
+        } else {
+          await reply(replyToken, {
+            type: "flex",
+            altText: "ผลการวินิจฉัย",
+            contents: {
+              type: "bubble",
+              direction: "ltr",
+              header: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    text: "ผลการวินิจฉัย",
+                    weight: "bold",
+                    contents: [],
+                  },
+                ],
+              },
+              body: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    align: "start",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname1} `,
+                        weight: "regular",
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability1}%`,
+                      },
+                    ],
+                  },
+                  {
+                    type: "text",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname2} `,
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability2}%`,
+                      },
+                    ],
+                  },
+                  {
+                    type: "text",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname3} `,
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability3}%`,
+                      },
+                    ],
+                  },
+                  {
+                    type: "text",
+                    contents: [
+                      {
+                        type: "span",
+                        text: `${displayClassname4} `,
+                      },
+                      {
+                        type: "span",
+                        text: `:  ${probability4}%`,
+                      },
+                    ],
+                  },
+                ],
+              },
+              footer: {
+                type: "box",
+                layout: "horizontal",
+                contents: [
+                  {
+                    type: "button",
+                    action: {
+                      type: "uri",
+                      label: "รับคำแนะนำโรค",
+                      uri: `${urlD}`,
+                    },
+                  },
+                ],
+              },
+            },
+          });
+        }
 
         admin.initializeApp();
         const db = admin.database();
@@ -369,6 +526,11 @@ exports.LineBot = functions
         });
         await fs.unlinkSync(tempLocalFile);
       }
+    }else {
+      await reply(replyToken, {
+        type: "text",
+        text: "ไม่สามารถวินิจฉัยโรคได้ กรุณาส่งไฟล์รูปเท่านั้น", //ตอบกลับ
+      });
     }
   });
 
